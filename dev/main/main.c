@@ -8,8 +8,10 @@
 
 #include "wifi.h"
 
+#define GPIO_LEVEL_HIGH 1
+#define GPIO_LEVEL_LOW	0
+
 static const char* TAG = "Main_event_loop";
-esp_event_loop_handle_t loop_handle;
 
 volatile bool wifi_connected = false;
 
@@ -35,16 +37,21 @@ void app_main(void) {
     wifi_start();
 
     gpio_set_direction(GPIO_NUM_25, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_NUM_21, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_21, GPIO_LEVEL_LOW); //annoying orange led blinking
+
     int level = 0;
+
     while (true) {
+
     	if (!wifi_connected) {
 			gpio_set_level(GPIO_NUM_25, level);
 			level = !level;
     	} else {
-    		gpio_set_level(GPIO_NUM_25, 1);
+    		gpio_set_level(GPIO_NUM_25, GPIO_LEVEL_LOW);
     	}
-		vTaskDelay(300 / portTICK_PERIOD_MS);
 
+		vTaskDelay(300 / portTICK_PERIOD_MS);
     }
 
     ESP_ERROR_CHECK(esp_event_loop_delete_default());
